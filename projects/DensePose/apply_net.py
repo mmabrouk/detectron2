@@ -166,6 +166,8 @@ class DumpAction(InferenceAction):
         image_fpath = entry["file_name"]
         logger.info(f"Processing {image_fpath}")
         result = {"file_name": image_fpath}
+        im = Image.open(image_fpath) # new line
+        im_size = im.size # new line
         if outputs.has("scores"):
             result["scores"] = outputs.get("scores").cpu()
         if outputs.has("pred_boxes"):
@@ -175,7 +177,7 @@ class DumpAction(InferenceAction):
                     extractor = DensePoseResultExtractor()
                 elif isinstance(outputs.pred_densepose, DensePoseEmbeddingPredictorOutput):
                     extractor = DensePoseOutputsExtractor()
-                result["pred_densepose"] = extractor(outputs)[0]
+                result["pred_densepose"] = extractor(outputs, im_size)[0] # changed line
         context["results"].append(result)
 
     @classmethod

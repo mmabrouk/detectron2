@@ -20,7 +20,8 @@ def resample_uv_tensors_to_bbox(
     v: torch.Tensor,
     labels: torch.Tensor,
     box_xywh_abs: IntTupleBox,
-) -> torch.Tensor:
+    im_size: tuple,
+) -> torch.Tensor: # changed line
     """
     Resamples U and V coordinate estimates for the given bounding box
 
@@ -38,13 +39,17 @@ def resample_uv_tensors_to_bbox(
     h = max(int(h), 1)
     u_bbox = F.interpolate(u, (h, w), mode="bilinear", align_corners=False)
     v_bbox = F.interpolate(v, (h, w), mode="bilinear", align_corners=False)
-    uv = torch.zeros([2, h, w], dtype=torch.float32, device=u.device)
-    for part_id in range(1, u_bbox.size(1)):
-        uv[0][labels == part_id] = u_bbox[0, part_id][labels == part_id]
-        uv[1][labels == part_id] = v_bbox[0, part_id][labels == part_id]
+    canvas_u = torch.zeros(1, 25, im_size[1], im_size[0], device=u.device) # new line
+    canvas_v = torch.zeros(1, 25, im_size[1], im_size[0], device=v.device) # new line
+    canvas_u[:, :, y : y + h, x : x + w] = u_bbox # new line
+    canvas_v[:, :, y : y + h, x : x + w] = v_bbox # new line
+    uv = torch.zeros([2, im_size[1], im_size[0]], dtype=torch.float32, device=u.device) # changed line
+    for part_id in range(1, canvas_u.size(1)): # changed line
+        uv[0][labels == part_id] = canvas_u[0, part_id][labels == part_id] # changed line
+        uv[1][labels == part_id] = canvas_v[0, part_id][labels == part_id] # changed line
     return uv
 
-
+    
 def resample_uv_to_bbox(
     predictor_output: DensePoseChartPredictorOutput,
     labels: torch.Tensor,
@@ -157,8 +162,8 @@ def resample_confidences_to_bbox(
 
 
 def densepose_chart_predictor_output_to_result_with_confidences(
-    predictor_output: DensePoseChartPredictorOutput, boxes: Boxes
-) -> DensePoseChartResultWithConfidences:
+    predictor_output: DensePoseChartPredictorOutput, boxes: Boxes, im_size: tuple
+) -> DensePoseChartResultWithConfidences: # changed line
     """
     Convert densepose chart predictor outputs to results
 
@@ -179,7 +184,8 @@ def densepose_chart_predictor_output_to_result_with_confidences(
     boxes_xywh_abs = BoxMode.convert(boxes_xyxy_abs, BoxMode.XYXY_ABS, BoxMode.XYWH_ABS)
     box_xywh = make_int_box(boxes_xywh_abs[0])
 
-    labels = resample_fine_and_coarse_segm_to_bbox(predictor_output, box_xywh).squeeze(0)
-    uv = resample_uv_to_bbox(predictor_output, labels, box_xywh)
+    labels = resample_fine_and_coarse_segm_to_bbox(
+        predictor_output, box_xywh, im_size
+    ).squeeze(0) #changed line
+    uv = resample_uv_to_bbox(predictor_output, labels, box_xywh, im_size) # changed line
     confidences = resample_confidences_to_bbox(predictor_output, labels, box_xywh)
-    return DensePoseChartResultWithConfidences(labels=labels, uv=uv, **confidences)

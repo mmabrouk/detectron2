@@ -30,8 +30,11 @@ def resample_coarse_segm_tensor_to_bbox(coarse_segm: torch.Tensor, box_xywh_abs:
 
 
 def resample_fine_and_coarse_segm_tensors_to_bbox(
-    fine_segm: torch.Tensor, coarse_segm: torch.Tensor, box_xywh_abs: IntTupleBox
-):
+    fine_segm: torch.Tensor,
+    coarse_segm: torch.Tensor,
+    box_xywh_abs: IntTupleBox,
+    im_size: tuple,
+): # changed line
     """
     Resample fine and coarse segmentation tensors to the given
     bounding box and derive labels for each pixel of the bounding box
@@ -53,11 +56,14 @@ def resample_fine_and_coarse_segm_tensors_to_bbox(
     ).argmax(dim=1)
     # combined coarse and fine segmentation
     labels = (
-        F.interpolate(fine_segm, (h, w), mode="bilinear", align_corners=False).argmax(dim=1)
+        F.interpolate(fine_segm, (h, w), mode="bilinear", align_corners=False).argmax(
+            dim=1
+        )
         * (coarse_segm_bbox > 0).long()
     )
-    return labels
-
+    canvas = torch.zeros(1, im_size[1], im_size[0]) # new line
+    canvas[0, y : y + h, x : x + w] = labels # new line
+    return canvas # changed line
 
 def resample_fine_and_coarse_segm_to_bbox(predictor_output: Any, box_xywh_abs: IntTupleBox):
     """

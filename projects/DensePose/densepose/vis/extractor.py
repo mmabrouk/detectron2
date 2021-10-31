@@ -89,8 +89,8 @@ class DensePoseResultExtractor(object):
     """
 
     def __call__(
-        self, instances: Instances, select=None
-    ) -> Tuple[Optional[DensePoseChartResultsWithConfidences], Optional[torch.Tensor]]:
+        self, instances: Instances, im_size: tuple, select=None
+    ) -> Tuple[Optional[DensePoseChartResultsWithConfidences], Optional[torch.Tensor]]: # changed line
         if instances.has("pred_densepose") and instances.has("pred_boxes"):
             dpout = instances.pred_densepose
             boxes_xyxy = instances.pred_boxes
@@ -99,7 +99,10 @@ class DensePoseResultExtractor(object):
                 dpout = dpout[select]
                 boxes_xyxy = boxes_xyxy[select]
             converter = ToChartResultConverterWithConfidences()
-            results = [converter.convert(dpout[i], boxes_xyxy[[i]]) for i in range(len(dpout))]
+            results = [
+                converter.convert(dpout[i], boxes_xyxy[[i]], im_size) # changed line
+                for i in range(len(dpout))
+            ]
             return results, boxes_xywh
         else:
             return None, None
