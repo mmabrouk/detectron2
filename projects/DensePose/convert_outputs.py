@@ -3,7 +3,7 @@ import pickle
 import argparse
 import numpy as np
 from tqdm import tqdm
-
+import os
 
 def main(opt):
     os.makedirs(opt.save_dir, exist_ok=True)
