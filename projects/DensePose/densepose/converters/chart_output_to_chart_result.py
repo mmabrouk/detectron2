@@ -54,6 +54,7 @@ def resample_uv_to_bbox(
     predictor_output: DensePoseChartPredictorOutput,
     labels: torch.Tensor,
     box_xywh_abs: IntTupleBox,
+    im_size: tuple,
 ) -> torch.Tensor:
     """
     Resamples U and V coordinate estimates for the given bounding box
@@ -72,11 +73,12 @@ def resample_uv_to_bbox(
         predictor_output.v,
         labels,
         box_xywh_abs,
+        im_size,
     )
 
 
 def densepose_chart_predictor_output_to_result(
-    predictor_output: DensePoseChartPredictorOutput, boxes: Boxes
+    predictor_output: DensePoseChartPredictorOutput, boxes: Boxes, im_size: tuple,
 ) -> DensePoseChartResult:
     """
     Convert densepose chart predictor outputs to results
@@ -98,8 +100,8 @@ def densepose_chart_predictor_output_to_result(
     boxes_xywh_abs = BoxMode.convert(boxes_xyxy_abs, BoxMode.XYXY_ABS, BoxMode.XYWH_ABS)
     box_xywh = make_int_box(boxes_xywh_abs[0])
 
-    labels = resample_fine_and_coarse_segm_to_bbox(predictor_output, box_xywh).squeeze(0)
-    uv = resample_uv_to_bbox(predictor_output, labels, box_xywh)
+    labels = resample_fine_and_coarse_segm_to_bbox(predictor_output, box_xywh, im_size).squeeze(0)
+    uv = resample_uv_to_bbox(predictor_output, labels, box_xywh, im_size)
     return DensePoseChartResult(labels=labels, uv=uv)
 
 

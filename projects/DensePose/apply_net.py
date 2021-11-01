@@ -9,7 +9,7 @@ import pickle
 import sys
 from typing import Any, ClassVar, Dict, List
 import torch
-
+from PIL import Image
 from detectron2.config import CfgNode, get_cfg
 from detectron2.data.detection_utils import read_image
 from detectron2.engine.defaults import DefaultPredictor
