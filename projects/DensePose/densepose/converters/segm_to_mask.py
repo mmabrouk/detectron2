@@ -65,7 +65,7 @@ def resample_fine_and_coarse_segm_tensors_to_bbox(
     canvas[0, y : y + h, x : x + w] = labels # new line
     return canvas # changed line
 
-def resample_fine_and_coarse_segm_to_bbox(predictor_output: Any, box_xywh_abs: IntTupleBox):
+def resample_fine_and_coarse_segm_to_bbox(predictor_output: Any, box_xywh_abs: IntTupleBox, im_size: tuple,):
     """
     Resample fine and coarse segmentation outputs from a predictor to the given
     bounding box and derive labels for each pixel of the bounding box
@@ -82,6 +82,7 @@ def resample_fine_and_coarse_segm_to_bbox(predictor_output: Any, box_xywh_abs: I
         predictor_output.fine_segm,
         predictor_output.coarse_segm,
         box_xywh_abs,
+        im_size,
     )
 
 

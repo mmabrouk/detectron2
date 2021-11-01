@@ -53,6 +53,7 @@ def resample_uv_to_bbox(
     predictor_output: DensePoseChartPredictorOutput,
     labels: torch.Tensor,
     box_xywh_abs: IntTupleBox,
+    im_size: tuple,
 ) -> torch.Tensor:
     """
     Resamples U and V coordinate estimates for the given bounding box
@@ -71,6 +72,7 @@ def resample_uv_to_bbox(
         predictor_output.v,
         labels,
         box_xywh_abs,
+        im_size,
     )
 
 
