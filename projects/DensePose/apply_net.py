@@ -173,7 +173,6 @@ class DumpAction(InferenceAction):
         if outputs.has("pred_boxes"):
             result["pred_boxes_XYXY"] = outputs.get("pred_boxes").tensor.cpu()
             if outputs.has("pred_densepose"):
-                import ipdb; ipdb.set_trace()
                 if isinstance(outputs.pred_densepose, DensePoseChartPredictorOutput):
                     extractor = DensePoseResultExtractor()
                 elif isinstance(outputs.pred_densepose, DensePoseEmbeddingPredictorOutput):
