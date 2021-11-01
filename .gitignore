@@ -1,3 +1,4 @@
+*.pth
 # output dir
 output
 instant_test_output

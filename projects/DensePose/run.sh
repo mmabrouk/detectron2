@@ -1,6 +1,6 @@
-python apply_net.py dump \
+python3 apply_net.py dump \
 configs/densepose_rcnn_R_101_FPN_DL_s1x.yaml \
-model_final_844d15.pkl \
-${dataset_directory_which_includes_images} \
+densepose_rcnn_R_101_FPN_DL_s1x.pkl \
+~/datasets/viton_pfafn/viton_small/train_img \
 --output dump.pkl \
 -v
